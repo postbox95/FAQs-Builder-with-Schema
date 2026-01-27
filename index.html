@@ -1,0 +1,773 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>FAQ Generator with Schema</title>
+    <style>
+        /* App Styles */
+        * {
+            box-sizing: border-box;
+            margin: 0;
+            padding: 0;
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+        }
+        
+        body {
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            min-height: 100vh;
+            padding: 40px 20px;
+        }
+        
+        .container {
+            max-width: 1200px;
+            margin: 0 auto;
+            display: flex;
+            flex-direction: column;
+            gap: 30px;
+        }
+        
+        .app-title {
+            color: white;
+            text-align: center;
+            margin-bottom: 10px;
+            font-size: 2.5rem;
+            text-shadow: 2px 2px 4px rgba(0,0,0,0.2);
+        }
+        
+        .app-subtitle {
+            color: rgba(255,255,255,0.9);
+            text-align: center;
+            margin-bottom: 30px;
+            font-size: 1.1rem;
+        }
+        
+        .app-wrapper {
+            display: grid;
+            grid-template-columns: 1fr 1fr;
+            gap: 30px;
+        }
+        
+        @media (max-width: 900px) {
+            .app-wrapper {
+                grid-template-columns: 1fr;
+            }
+        }
+        
+        .input-section, .output-section {
+            background: white;
+            border-radius: 15px;
+            padding: 30px;
+            box-shadow: 0 20px 60px rgba(0,0,0,0.3);
+        }
+        
+        .section-title {
+            color: #36364A;
+            margin-bottom: 25px;
+            padding-bottom: 15px;
+            border-bottom: 2px solid #f0f0f0;
+            font-size: 1.5rem;
+        }
+        
+        /* Input Form Styles */
+        .faq-form {
+            display: flex;
+            flex-direction: column;
+            gap: 25px;
+        }
+        
+        .faq-item-input {
+            background: #F9F9FB;
+            border-radius: 10px;
+            padding: 20px;
+            border: 1px solid #e0e0e0;
+        }
+        
+        .form-group {
+            margin-bottom: 15px;
+        }
+        
+        .form-group label {
+            display: block;
+            margin-bottom: 8px;
+            color: #36364A;
+            font-weight: 600;
+        }
+        
+        .form-group input,
+        .form-group textarea {
+            width: 100%;
+            padding: 12px 15px;
+            border: 1px solid #ddd;
+            border-radius: 8px;
+            font-size: 1rem;
+            transition: border-color 0.3s ease;
+        }
+        
+        .form-group input:focus,
+        .form-group textarea:focus {
+            outline: none;
+            border-color: #5F57FF;
+            box-shadow: 0 0 0 3px rgba(95, 87, 255, 0.1);
+        }
+        
+        .form-group textarea {
+            min-height: 120px;
+            resize: vertical;
+        }
+        
+        .form-actions {
+            display: flex;
+            gap: 15px;
+            margin-top: 10px;
+        }
+        
+        .btn {
+            padding: 12px 24px;
+            border: none;
+            border-radius: 8px;
+            font-size: 1rem;
+            font-weight: 600;
+            cursor: pointer;
+            transition: all 0.3s ease;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            gap: 8px;
+        }
+        
+        .btn-primary {
+            background: #5F57FF;
+            color: white;
+        }
+        
+        .btn-primary:hover {
+            background: #4a43d4;
+            transform: translateY(-2px);
+        }
+        
+        .btn-secondary {
+            background: #f0f0f0;
+            color: #36364A;
+        }
+        
+        .btn-secondary:hover {
+            background: #e0e0e0;
+        }
+        
+        .btn-danger {
+            background: #ff4757;
+            color: white;
+        }
+        
+        .btn-danger:hover {
+            background: #ff3742;
+        }
+        
+        .btn-add {
+            background: #00b894;
+            color: white;
+            width: 100%;
+            margin-top: 10px;
+        }
+        
+        .btn-add:hover {
+            background: #00a085;
+        }
+        
+        /* Output Section Styles */
+        .output-controls {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-bottom: 20px;
+            flex-wrap: wrap;
+            gap: 10px;
+        }
+        
+        .output-badge {
+            background: #5F57FF;
+            color: white;
+            padding: 6px 12px;
+            border-radius: 20px;
+            font-size: 0.9rem;
+        }
+        
+        .output-area {
+            position: relative;
+        }
+        
+        #generatedCode {
+            width: 100%;
+            height: 500px;
+            padding: 20px;
+            border: 1px solid #ddd;
+            border-radius: 8px;
+            font-family: 'Courier New', monospace;
+            font-size: 0.9rem;
+            line-height: 1.5;
+            background: #f8f9fa;
+            color: #333;
+            resize: vertical;
+            white-space: pre;
+            overflow-x: auto;
+        }
+        
+        .copy-btn {
+            position: absolute;
+            top: 10px;
+            right: 10px;
+            background: rgba(255,255,255,0.9);
+            border: 1px solid #ddd;
+            padding: 8px 15px;
+            border-radius: 6px;
+            cursor: pointer;
+            transition: all 0.3s ease;
+        }
+        
+        .copy-btn:hover {
+            background: white;
+            box-shadow: 0 2px 8px rgba(0,0,0,0.1);
+        }
+        
+        .copy-btn.copied {
+            background: #00b894;
+            color: white;
+            border-color: #00b894;
+        }
+        
+        .preview-section {
+            margin-top: 30px;
+            padding-top: 30px;
+            border-top: 2px solid #f0f0f0;
+        }
+        
+        .preview-title {
+            color: #36364A;
+            margin-bottom: 20px;
+            font-size: 1.2rem;
+        }
+        
+        .preview-container {
+            max-height: 400px;
+            overflow-y: auto;
+            padding: 20px;
+            background: #f9f9f9;
+            border-radius: 8px;
+            border: 1px solid #eee;
+        }
+        
+        /* FAQ Preview Styles (same as original) */
+        .faq-container {
+            max-width: 100%;
+            margin: 0;
+            font-family: Arial, sans-serif;
+        }
+
+        .faq-item {
+            border-radius: 8px;
+            margin-bottom: 12px;
+            overflow: hidden;
+            border: 1px solid transparent;
+        }
+
+        .faq-question {
+            background: #F9F9FB;
+            color: #36364A;
+            cursor: pointer;
+            padding: 15px 20px;
+            font-size: 18px;
+            font-weight: 400;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+        }
+
+        .faq-icon {
+            width: 32px;
+            height: 32px;
+            border-radius: 50%;
+            background: #fff;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            transition: background 0.3s ease;
+        }
+
+        .faq-question.active .faq-icon {
+            background: #5F57FF;
+        }
+
+        .faq-question.active .faq-icon .plus {
+            display: none;
+        }
+
+        .faq-question.active .faq-icon .minus {
+            display: block;
+        }
+
+        .faq-icon .minus {
+            display: none;
+        }
+
+        .faq-answer {
+            max-height: 0;
+            overflow: hidden;
+            background: #f9f9f9;
+            color: #333;
+            line-height: 1.6;
+            transition: max-height 0.4s ease, padding 0.3s ease;
+            padding: 0px 20px;
+        }
+
+        .faq-answer.show {
+            padding: 0 20px;
+            max-height: 1000px;
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <h1 class="app-title">📝 FAQ Generator with Schema</h1>
+        
+        <div class="app-wrapper">
+            <!-- Input Section -->
+            <div class="input-section">
+                <h2 class="section-title">➕ Add FAQ Items</h2>
+                <div class="faq-form" id="faqForm">
+                    <!-- FAQ items will be dynamically added here -->
+                </div>
+                <button type="button" class="btn btn-add" id="addFaqBtn">
+                    <span>➕ Add Another FAQ Item</span>
+                </button>
+                
+                <div class="form-actions">
+                    <button type="button" class="btn btn-secondary" id="resetBtn">
+                        <span>🔄 Reset All</span>
+                    </button>
+                    <button type="button" class="btn btn-primary" id="generateBtn">
+                        <span>⚡ Generate Code</span>
+                    </button>
+                </div>
+            </div>
+            
+            <!-- Output Section -->
+            <div class="output-section">
+                <div class="output-controls">
+                    <h2 class="section-title">📋 Generated Code</h2>
+                    <div class="output-badge" id="itemCount">0 FAQ Items</div>
+                </div>
+                
+                <div class="output-area">
+                    <textarea id="generatedCode" placeholder="Generated code will appear here..."></textarea>
+                    <button class="copy-btn" id="copyBtn">📋 Copy Code</button>
+                </div>
+                
+                <div class="preview-section">
+                    <h3 class="preview-title">👁️ Live Preview</h3>
+                    <div class="preview-container" id="previewContainer">
+                        <p>Preview will appear here after generating code...</p>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <script>
+        // FAQ data storage
+        let faqItems = [];
+        let faqIdCounter = 1;
+        
+        // Initialize with one empty FAQ item
+        document.addEventListener('DOMContentLoaded', function() {
+            addNewFaqItem();
+            updateItemCount();
+            
+            // Add event listeners
+            document.getElementById('addFaqBtn').addEventListener('click', addNewFaqItem);
+            document.getElementById('generateBtn').addEventListener('click', generateCode);
+            document.getElementById('resetBtn').addEventListener('click', resetAll);
+            document.getElementById('copyBtn').addEventListener('click', copyToClipboard);
+            
+            // Delegate events for dynamic elements
+            document.getElementById('faqForm').addEventListener('input', function(e) {
+                if (e.target.classList.contains('faq-question-input') || e.target.classList.contains('faq-answer-input')) {
+                    updatePreview();
+                }
+            });
+            
+            // Initialize empty preview
+            updatePreview();
+        });
+        
+        // Add a new FAQ item
+        function addNewFaqItem() {
+            const faqForm = document.getElementById('faqForm');
+            const faqId = faqIdCounter++;
+            
+            const faqItemHTML = `
+                <div class="faq-item-input" data-id="${faqId}">
+                    <div class="form-group">
+                        <label for="question-${faqId}">Question</label>
+                        <input type="text" id="question-${faqId}" class="faq-question-input" placeholder="Enter your question here...">
+                    </div>
+                    <div class="form-group">
+                        <label for="answer-${faqId}">Answer</label>
+                        <textarea id="answer-${faqId}" class="faq-answer-input" placeholder="Enter your answer here..."></textarea>
+                    </div>
+                    <div class="form-actions">
+                        <button type="button" class="btn btn-danger remove-faq-btn" data-id="${faqId}">
+                            <span>🗑️ Remove</span>
+                        </button>
+                    </div>
+                </div>
+            `;
+            
+            faqForm.insertAdjacentHTML('beforeend', faqItemHTML);
+            
+            // Add event listener to remove button
+            const removeBtn = faqForm.querySelector(`[data-id="${faqId}"] .remove-faq-btn`);
+            removeBtn.addEventListener('click', function() {
+                if (document.querySelectorAll('.faq-item-input').length > 1) {
+                    this.closest('.faq-item-input').remove();
+                    updateItemCount();
+                    updatePreview();
+                } else {
+                    alert('You need at least one FAQ item. Use the reset button to start over.');
+                }
+            });
+            
+            updateItemCount();
+        }
+        
+        // Reset all FAQ items
+        function resetAll() {
+            if (confirm('Are you sure you want to reset all FAQ items? This cannot be undone.')) {
+                const faqForm = document.getElementById('faqForm');
+                faqForm.innerHTML = '';
+                faqIdCounter = 1;
+                addNewFaqItem();
+                updateItemCount();
+                document.getElementById('generatedCode').value = '';
+                updatePreview();
+            }
+        }
+        
+        // Update the item count badge
+        function updateItemCount() {
+            const count = document.querySelectorAll('.faq-item-input').length;
+            document.getElementById('itemCount').textContent = `${count} FAQ Item${count !== 1 ? 's' : ''}`;
+        }
+        
+        // Generate the complete code
+        function generateCode() {
+            // Get all FAQ items
+            const faqInputs = document.querySelectorAll('.faq-item-input');
+            faqItems = [];
+            
+            faqInputs.forEach(input => {
+                const question = input.querySelector('.faq-question-input').value.trim();
+                const answer = input.querySelector('.faq-answer-input').value.trim();
+                
+                if (question && answer) {
+                    faqItems.push({
+                        question: question,
+                        answer: answer
+                    });
+                }
+            });
+            
+            if (faqItems.length === 0) {
+                alert('Please add at least one FAQ item with both question and answer.');
+                return;
+            }
+            
+            // Generate JSON-LD schema
+            const jsonLDSchema = generateJSONLD(faqItems);
+            
+            // Generate HTML structure
+            const htmlStructure = generateHTML(faqItems);
+            
+            // Complete code with CSS, JS, and schema
+            const completeCode = generateCompleteCode(jsonLDSchema, htmlStructure);
+            
+            // Display in textarea
+            document.getElementById('generatedCode').value = completeCode;
+            
+            // Update preview
+            updatePreview();
+        }
+        
+        // Generate JSON-LD schema
+        function generateJSONLD(items) {
+            const mainEntity = items.map(item => {
+                // Clean answer text for JSON-LD (remove HTML tags for text property)
+                const cleanAnswer = item.answer.replace(/<[^>]*>/g, '');
+                
+                return {
+                    "@type": "Question",
+                    "name": item.question,
+                    "acceptedAnswer": {
+                        "@type": "Answer",
+                        "text": cleanAnswer
+                    }
+                };
+            });
+            
+            const schema = {
+                "@context": "https://schema.org",
+                "@type": "FAQPage",
+                "mainEntity": mainEntity
+            };
+            
+            return JSON.stringify(schema, null, 2);
+        }
+        
+        // Generate HTML structure
+        function generateHTML(items) {
+            let html = '';
+            
+            items.forEach(item => {
+                // Format answer with paragraphs if it contains newlines
+                let formattedAnswer = item.answer;
+                if (formattedAnswer.includes('\n')) {
+                    formattedAnswer = formattedAnswer.split('\n')
+                        .filter(line => line.trim())
+                        .map(line => `<p>${line.trim()}</p>`)
+                        .join('\n');
+                } else {
+                    formattedAnswer = `<p>${formattedAnswer}</p>`;
+                }
+                
+                html += `
+  <div class="faq-item">
+    <div class="faq-question">
+      ${item.question}
+      <div class="faq-icon">
+        <!-- Plus icon -->
+        <svg class="plus" width="20" height="20" viewBox="0 0 20 20" fill="none"
+             xmlns="http://www.w3.org/2000/svg">
+          <path d="M10 4.16663V15.8333" stroke="#1E0A52" stroke-width="1.4"
+                stroke-linecap="round" stroke-linejoin="round"/>
+          <path d="M4.16602 10H15.8327" stroke="#1E0A52" stroke-width="1.4"
+                stroke-linecap="round" stroke-linejoin="round"/>
+        </svg>
+        <!-- Minus icon -->
+        <svg class="minus" width="20" height="20" viewBox="0 0 20 20" fill="none"
+             xmlns="http://www.w3.org/2000/svg">
+          <path d="M4.16602 10H15.8327" stroke="white" stroke-width="1.4"
+                stroke-linecap="round" stroke-linejoin="round"/>
+        </svg>
+      </div>
+    </div>
+    <div class="faq-answer">
+      <div>
+        ${formattedAnswer}
+      </div>
+    </div>
+  </div>
+`;
+            });
+            
+            return html;
+        }
+        
+        // Generate complete code
+        function generateCompleteCode(jsonLD, html) {
+            const css = `<style>
+.faq-container {
+  max-width: 800px;
+  margin: 40px auto;
+  font-family: Arial, sans-serif;
+}
+
+.faq-item {
+  border-radius: 8px;
+  margin-bottom: 12px;
+  overflow: hidden;
+  border: 1px solid transparent;
+}
+
+.faq-question {
+  background: #F9F9FB;
+  color: #36364A;
+  cursor: pointer;
+  padding: 15px 20px;
+  font-size: 18px;
+  font-weight: 400;
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+}
+
+.faq-icon {
+  width: 32px;
+  height: 32px;
+  border-radius: 50%;
+  background: #fff;
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  transition: background 0.3s ease;
+}
+
+.faq-icon svg {
+  transition: opacity 0.3s ease;
+}
+
+.faq-question.active .faq-icon {
+  background: #5F57FF;
+}
+
+.faq-question.active .faq-icon .plus {
+  display: none;
+}
+
+.faq-question.active .faq-icon .minus {
+  display: block;
+}
+
+.faq-icon .minus {
+  display: none;
+}
+
+.faq-answer {
+  max-height: 0;
+  overflow: hidden;
+  background: #f9f9f9;
+  color: #333;
+  line-height: 1.6;
+  transition: max-height 0.4s ease, padding 0.3s ease;
+  padding: 0px 20px;
+}
+
+.faq-answer.show {
+  padding: 0 20px;
+  max-height: 1000px;
+}
+</style>`;
+
+            const js = `<script>
+document.querySelectorAll(".faq-question").forEach((question) => {
+  question.addEventListener("click", () => {
+    // toggle active state
+    question.classList.toggle("active");
+    const answer = question.nextElementSibling;
+    answer.classList.toggle("show");
+
+    // parent element (faq-item)
+    const faqItem = question.parentElement;
+
+    // apply border only if active, otherwise remove
+    if (question.classList.contains("active")) {
+      faqItem.style.border = "1px solid #C2CBFF";
+    } else {
+      faqItem.style.border = "none";
+    }
+  });
+});
+<\/script>`;
+
+            return `<!-- FAQ Section with Schema - Generated by FAQ Generator -->
+${css}
+
+<!-- FAQ Schema (Structured Data) for SEO -->
+<script type="application/ld+json">
+${jsonLD}
+<\/script>
+
+<div class="faq-container">
+${html}
+</div>
+
+${js}`;
+        }
+        
+        // Update live preview
+        function updatePreview() {
+            const previewContainer = document.getElementById('previewContainer');
+            const faqInputs = document.querySelectorAll('.faq-item-input');
+            const items = [];
+            
+            faqInputs.forEach(input => {
+                const question = input.querySelector('.faq-question-input').value.trim();
+                const answer = input.querySelector('.faq-answer-input').value.trim();
+                
+                if (question || answer) {
+                    items.push({
+                        question: question || 'Sample Question',
+                        answer: answer || 'Sample answer will appear here...'
+                    });
+                }
+            });
+            
+            if (items.length === 0) {
+                previewContainer.innerHTML = '<p style="color: #666; text-align: center; padding: 40px;">Enter questions and answers to see preview...</p>';
+                return;
+            }
+            
+            const html = generateHTML(items);
+            previewContainer.innerHTML = `
+                <div class="faq-container">
+                    ${html}
+                </div>
+            `;
+            
+            // Add click functionality to preview
+            previewContainer.querySelectorAll(".faq-question").forEach((question) => {
+                question.addEventListener("click", () => {
+                    question.classList.toggle("active");
+                    const answer = question.nextElementSibling;
+                    answer.classList.toggle("show");
+                    
+                    const faqItem = question.parentElement;
+                    if (question.classList.contains("active")) {
+                        faqItem.style.border = "1px solid #C2CBFF";
+                    } else {
+                        faqItem.style.border = "none";
+                    }
+                });
+            });
+        }
+        
+        // Copy code to clipboard
+        function copyToClipboard() {
+            const codeTextarea = document.getElementById('generatedCode');
+            const copyBtn = document.getElementById('copyBtn');
+            
+            if (!codeTextarea.value.trim()) {
+                alert('Please generate code first!');
+                return;
+            }
+            
+            codeTextarea.select();
+            codeTextarea.setSelectionRange(0, 99999); // For mobile devices
+            
+            try {
+                navigator.clipboard.writeText(codeTextarea.value).then(() => {
+                    // Show success feedback
+                    copyBtn.classList.add('copied');
+                    copyBtn.textContent = '✓ Copied!';
+                    
+                    setTimeout(() => {
+                        copyBtn.classList.remove('copied');
+                        copyBtn.textContent = '📋 Copy Code';
+                    }, 2000);
+                });
+            } catch (err) {
+                // Fallback for older browsers
+                document.execCommand('copy');
+                
+                // Show success feedback
+                copyBtn.classList.add('copied');
+                copyBtn.textContent = '✓ Copied!';
+                
+                setTimeout(() => {
+                    copyBtn.classList.remove('copied');
+                    copyBtn.textContent = '📋 Copy Code';
+                }, 2000);
+            }
+        }
+    </script>
+</body>
+</html>
