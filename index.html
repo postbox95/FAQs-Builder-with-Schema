@@ -1,773 +1,789 @@
 <!DOCTYPE html>
 <html lang="en">
 <head>
-    <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>FAQ Generator with Schema</title>
-    <style>
-        /* App Styles */
-        * {
-            box-sizing: border-box;
-            margin: 0;
-            padding: 0;
-            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
-        }
-        
-        body {
-            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
-            min-height: 100vh;
-            padding: 40px 20px;
-        }
-        
-        .container {
-            max-width: 1200px;
-            margin: 0 auto;
-            display: flex;
-            flex-direction: column;
-            gap: 30px;
-        }
-        
-        .app-title {
-            color: white;
-            text-align: center;
-            margin-bottom: 10px;
-            font-size: 2.5rem;
-            text-shadow: 2px 2px 4px rgba(0,0,0,0.2);
-        }
-        
-        .app-subtitle {
-            color: rgba(255,255,255,0.9);
-            text-align: center;
-            margin-bottom: 30px;
-            font-size: 1.1rem;
-        }
-        
-        .app-wrapper {
-            display: grid;
-            grid-template-columns: 1fr 1fr;
-            gap: 30px;
-        }
-        
-        @media (max-width: 900px) {
-            .app-wrapper {
-                grid-template-columns: 1fr;
-            }
-        }
-        
-        .input-section, .output-section {
-            background: white;
-            border-radius: 15px;
-            padding: 30px;
-            box-shadow: 0 20px 60px rgba(0,0,0,0.3);
-        }
-        
-        .section-title {
-            color: #36364A;
-            margin-bottom: 25px;
-            padding-bottom: 15px;
-            border-bottom: 2px solid #f0f0f0;
-            font-size: 1.5rem;
-        }
-        
-        /* Input Form Styles */
-        .faq-form {
-            display: flex;
-            flex-direction: column;
-            gap: 25px;
-        }
-        
-        .faq-item-input {
-            background: #F9F9FB;
-            border-radius: 10px;
-            padding: 20px;
-            border: 1px solid #e0e0e0;
-        }
-        
-        .form-group {
-            margin-bottom: 15px;
-        }
-        
-        .form-group label {
-            display: block;
-            margin-bottom: 8px;
-            color: #36364A;
-            font-weight: 600;
-        }
-        
-        .form-group input,
-        .form-group textarea {
-            width: 100%;
-            padding: 12px 15px;
-            border: 1px solid #ddd;
-            border-radius: 8px;
-            font-size: 1rem;
-            transition: border-color 0.3s ease;
-        }
-        
-        .form-group input:focus,
-        .form-group textarea:focus {
-            outline: none;
-            border-color: #5F57FF;
-            box-shadow: 0 0 0 3px rgba(95, 87, 255, 0.1);
-        }
-        
-        .form-group textarea {
-            min-height: 120px;
-            resize: vertical;
-        }
-        
-        .form-actions {
-            display: flex;
-            gap: 15px;
-            margin-top: 10px;
-        }
-        
-        .btn {
-            padding: 12px 24px;
-            border: none;
-            border-radius: 8px;
-            font-size: 1rem;
-            font-weight: 600;
-            cursor: pointer;
-            transition: all 0.3s ease;
-            display: flex;
-            align-items: center;
-            justify-content: center;
-            gap: 8px;
-        }
-        
-        .btn-primary {
-            background: #5F57FF;
-            color: white;
-        }
-        
-        .btn-primary:hover {
-            background: #4a43d4;
-            transform: translateY(-2px);
-        }
-        
-        .btn-secondary {
-            background: #f0f0f0;
-            color: #36364A;
-        }
-        
-        .btn-secondary:hover {
-            background: #e0e0e0;
-        }
-        
-        .btn-danger {
-            background: #ff4757;
-            color: white;
-        }
-        
-        .btn-danger:hover {
-            background: #ff3742;
-        }
-        
-        .btn-add {
-            background: #00b894;
-            color: white;
-            width: 100%;
-            margin-top: 10px;
-        }
-        
-        .btn-add:hover {
-            background: #00a085;
-        }
-        
-        /* Output Section Styles */
-        .output-controls {
-            display: flex;
-            justify-content: space-between;
-            align-items: center;
-            margin-bottom: 20px;
-            flex-wrap: wrap;
-            gap: 10px;
-        }
-        
-        .output-badge {
-            background: #5F57FF;
-            color: white;
-            padding: 6px 12px;
-            border-radius: 20px;
-            font-size: 0.9rem;
-        }
-        
-        .output-area {
-            position: relative;
-        }
-        
-        #generatedCode {
-            width: 100%;
-            height: 500px;
-            padding: 20px;
-            border: 1px solid #ddd;
-            border-radius: 8px;
-            font-family: 'Courier New', monospace;
-            font-size: 0.9rem;
-            line-height: 1.5;
-            background: #f8f9fa;
-            color: #333;
-            resize: vertical;
-            white-space: pre;
-            overflow-x: auto;
-        }
-        
-        .copy-btn {
-            position: absolute;
-            top: 10px;
-            right: 10px;
-            background: rgba(255,255,255,0.9);
-            border: 1px solid #ddd;
-            padding: 8px 15px;
-            border-radius: 6px;
-            cursor: pointer;
-            transition: all 0.3s ease;
-        }
-        
-        .copy-btn:hover {
-            background: white;
-            box-shadow: 0 2px 8px rgba(0,0,0,0.1);
-        }
-        
-        .copy-btn.copied {
-            background: #00b894;
-            color: white;
-            border-color: #00b894;
-        }
-        
-        .preview-section {
-            margin-top: 30px;
-            padding-top: 30px;
-            border-top: 2px solid #f0f0f0;
-        }
-        
-        .preview-title {
-            color: #36364A;
-            margin-bottom: 20px;
-            font-size: 1.2rem;
-        }
-        
-        .preview-container {
-            max-height: 400px;
-            overflow-y: auto;
-            padding: 20px;
-            background: #f9f9f9;
-            border-radius: 8px;
-            border: 1px solid #eee;
-        }
-        
-        /* FAQ Preview Styles (same as original) */
-        .faq-container {
-            max-width: 100%;
-            margin: 0;
-            font-family: Arial, sans-serif;
-        }
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>FAQ Builder Pro</title>
+<link href="https://fonts.googleapis.com/css2?family=DM+Mono:wght@400;500&family=Syne:wght@400;600;700;800&family=Fraunces:ital,wght@0,300;0,600;1,300&display=swap" rel="stylesheet">
+<style>
+*, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
 
-        .faq-item {
-            border-radius: 8px;
-            margin-bottom: 12px;
-            overflow: hidden;
-            border: 1px solid transparent;
-        }
+:root {
+  --bg: #0d0d0f;
+  --sf: #141416;
+  --sf2: #1c1c1f;
+  --sf3: #242428;
+  --bd: #2e2e34;
+  --bd2: #3d3d44;
+  --ac: #c8f04a;
+  --tx: #f0f0f2;
+  --tx2: #9090a0;
+  --tx3: #5a5a6a;
+  --red: #ff4d6d;
+  --mono: 'DM Mono', monospace;
+  --ui: 'Syne', sans-serif;
+}
 
-        .faq-question {
-            background: #F9F9FB;
-            color: #36364A;
-            cursor: pointer;
-            padding: 15px 20px;
-            font-size: 18px;
-            font-weight: 400;
-            display: flex;
-            justify-content: space-between;
-            align-items: center;
-        }
+html, body { height: 100%; overflow: hidden; font-size: 14px; }
+body { background: var(--bg); color: var(--tx); font-family: var(--ui); }
 
-        .faq-icon {
-            width: 32px;
-            height: 32px;
-            border-radius: 50%;
-            background: #fff;
-            display: flex;
-            justify-content: center;
-            align-items: center;
-            transition: background 0.3s ease;
-        }
+/* ── shell: header + grid ── */
+.shell { display: flex; flex-direction: column; height: 100vh; }
 
-        .faq-question.active .faq-icon {
-            background: #5F57FF;
-        }
+.hdr {
+  flex-shrink: 0;
+  height: 56px;
+  display: flex; align-items: center; justify-content: space-between;
+  padding: 0 22px;
+  background: var(--sf); border-bottom: 1px solid var(--bd);
+}
+.logo { display: flex; align-items: center; gap: 8px; font-size: 1rem; font-weight: 800; letter-spacing: -.02em; }
+.logo-dot { width: 9px; height: 9px; border-radius: 50%; background: var(--ac); }
+.chip {
+  font-size: .58rem; font-weight: 700; letter-spacing: .08em; text-transform: uppercase;
+  background: rgba(200,240,74,.12); border: 1px solid rgba(200,240,74,.22);
+  color: var(--ac); border-radius: 99px; padding: 1px 7px;
+}
+.hdr-act { display: flex; gap: 7px; }
 
-        .faq-question.active .faq-icon .plus {
-            display: none;
-        }
+/* ── two-column app grid ── */
+.app {
+  display: grid;
+  grid-template-columns: 360px 1fr;
+  flex: 1;
+  min-height: 0;    /* let children shrink */
+  overflow: hidden;
+}
 
-        .faq-question.active .faq-icon .minus {
-            display: block;
-        }
+/* ══ SIDEBAR ══ */
+.sidebar {
+  display: flex; flex-direction: column;
+  background: var(--sf); border-right: 1px solid var(--bd);
+  min-height: 0; overflow: hidden;
+}
 
-        .faq-icon .minus {
-            display: none;
-        }
+/* sticky tab bar */
+.sb-tabs {
+  display: flex; flex-shrink: 0;
+  background: var(--sf); border-bottom: 1px solid var(--bd);
+}
+.sb-tab {
+  flex: 1; padding: 11px 6px;
+  font-family: var(--ui); font-size: .68rem; font-weight: 700;
+  letter-spacing: .08em; text-transform: uppercase;
+  color: var(--tx3); background: none; border: none;
+  border-bottom: 2px solid transparent;
+  cursor: pointer; transition: color .15s, border-color .15s;
+}
+.sb-tab.on { color: var(--ac); border-bottom-color: var(--ac); }
+.sb-tab:hover:not(.on) { color: var(--tx2); }
 
-        .faq-answer {
-            max-height: 0;
-            overflow: hidden;
-            background: #f9f9f9;
-            color: #333;
-            line-height: 1.6;
-            transition: max-height 0.4s ease, padding 0.3s ease;
-            padding: 0px 20px;
-        }
+/* scrollable panels — key: explicit flex + min-height:0 on parent makes this work */
+.sb-panel {
+  display: none;
+  flex-direction: column;
+  gap: 12px;
+  padding: 14px 14px 24px;
+  overflow-y: auto;
+  overflow-x: hidden;
+  flex: 1;
+  min-height: 0;
+  scrollbar-width: thin;
+  scrollbar-color: var(--bd2) transparent;
+}
+.sb-panel::-webkit-scrollbar { width: 4px; }
+.sb-panel::-webkit-scrollbar-thumb { background: var(--bd2); border-radius: 4px; }
+.sb-panel.on { display: flex; }
 
-        .faq-answer.show {
-            padding: 0 20px;
-            max-height: 1000px;
-        }
-    </style>
+/* ── section accordion ── */
+.sec { background: var(--sf2); border: 1px solid var(--bd); border-radius: 9px; overflow: hidden; flex-shrink: 0; }
+.sec-hd {
+  display: flex; align-items: center; justify-content: space-between;
+  padding: 9px 12px; background: var(--sf3); border-bottom: 1px solid var(--bd);
+  cursor: pointer; user-select: none;
+}
+.sec-hd span:first-child { font-size: .62rem; font-weight: 700; letter-spacing: .1em; text-transform: uppercase; color: var(--tx2); }
+.sec-arr { font-size: .62rem; color: var(--tx3); transition: transform .18s; }
+.sec.closed .sec-arr { transform: rotate(-90deg); }
+.sec-body { padding: 12px; display: flex; flex-direction: column; gap: 10px; }
+.sec.closed .sec-body { display: none; }
+
+/* ── form controls ── */
+.field { display: flex; flex-direction: column; gap: 4px; }
+.f2 { display: grid; grid-template-columns: 1fr 1fr; gap: 7px; }
+label { font-size: .6rem; font-weight: 700; letter-spacing: .07em; text-transform: uppercase; color: var(--tx3); }
+
+input[type="text"], input[type="number"], textarea, select {
+  background: var(--bg); border: 1px solid var(--bd2); border-radius: 6px;
+  padding: 6px 8px; color: var(--tx); font-family: var(--mono); font-size: .78rem;
+  outline: none; width: 100%; transition: border-color .15s;
+}
+input:focus, textarea:focus, select:focus {
+  border-color: var(--ac); box-shadow: 0 0 0 2px rgba(200,240,74,.07);
+}
+textarea { resize: vertical; min-height: 60px; line-height: 1.5; }
+select option { background: var(--sf2); }
+
+/* color row */
+.crow { display: flex; align-items: center; gap: 6px; }
+input[type="color"] {
+  width: 30px; height: 30px; border: 1px solid var(--bd2); border-radius: 5px;
+  background: none; cursor: pointer; padding: 2px; flex-shrink: 0;
+}
+.cval {
+  flex: 1; background: var(--bg); border: 1px solid var(--bd2); border-radius: 6px;
+  padding: 5px 7px; font-family: var(--mono); font-size: .73rem; color: var(--tx2);
+  outline: none; transition: border-color .15s;
+}
+.cval:focus { border-color: var(--ac); }
+
+/* slider */
+.slr { display: flex; align-items: center; gap: 7px; }
+input[type="range"] {
+  flex: 1; -webkit-appearance: none; height: 3px;
+  background: var(--bd2); border-radius: 99px; outline: none; cursor: pointer;
+}
+input[type="range"]::-webkit-slider-thumb {
+  -webkit-appearance: none; width: 12px; height: 12px;
+  border-radius: 50%; background: var(--ac); border: 2px solid var(--bg);
+}
+.slv { font-family: var(--mono); font-size: .7rem; color: var(--tx2); min-width: 30px; text-align: right; }
+
+/* toggle */
+.togrow { display: flex; align-items: center; justify-content: space-between; }
+.toglbl { font-size: .73rem; color: var(--tx2); }
+.tog { position: relative; width: 36px; height: 20px; }
+.tog input { opacity: 0; width: 0; height: 0; }
+.togtr {
+  position: absolute; inset: 0; background: var(--bd2); border-radius: 99px;
+  cursor: pointer; transition: background .2s;
+}
+.togtr::before {
+  content: ''; position: absolute; width: 14px; height: 14px;
+  left: 3px; top: 3px; background: white; border-radius: 50%; transition: transform .2s;
+}
+.tog input:checked + .togtr { background: var(--ac); }
+.tog input:checked + .togtr::before { transform: translateX(16px); }
+
+/* checkboxes */
+.chkgrp { display: flex; gap: 10px; flex-wrap: wrap; }
+.chkitem { display: flex; align-items: center; gap: 4px; cursor: pointer; font-size: .71rem; color: var(--tx2); }
+.chkitem input { accent-color: var(--ac); width: 12px; height: 12px; cursor: pointer; }
+
+/* radio pills */
+.pillgrp { display: flex; gap: 5px; flex-wrap: wrap; }
+.pill {
+  padding: 4px 10px; border: 1px solid var(--bd2); border-radius: 5px;
+  font-family: var(--ui); font-size: .68rem; color: var(--tx3);
+  cursor: pointer; user-select: none; transition: all .13s;
+}
+.pill input { display: none; }
+.pill:has(input:checked) { background: rgba(200,240,74,.1); border-color: var(--ac); color: var(--ac); }
+.pill:hover:not(:has(input:checked)) { color: var(--tx2); background: var(--sf3); }
+
+/* ── FAQ admin cards ── */
+.faq-list { display: flex; flex-direction: column; gap: 7px; }
+.faqc { background: var(--sf3); border: 1px solid var(--bd); border-radius: 7px; overflow: hidden; flex-shrink: 0; }
+.faqc-hd { display: flex; align-items: center; gap: 6px; padding: 8px 10px; cursor: pointer; user-select: none; }
+.faqnum {
+  width: 19px; height: 19px; border-radius: 50%; background: var(--bd);
+  display: flex; align-items: center; justify-content: center;
+  font-size: .58rem; font-weight: 700; color: var(--tx3); flex-shrink: 0;
+}
+.faqprev { flex: 1; font-size: .74rem; color: var(--tx2); white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
+.faqdel {
+  background: none; border: none; color: var(--tx3); cursor: pointer;
+  font-size: .85rem; padding: 2px 3px; border-radius: 3px; transition: color .12s, background .12s;
+}
+.faqdel:hover { color: var(--red); background: rgba(255,77,109,.1); }
+.faqc-body { display: none; padding: 0 10px 10px; flex-direction: column; gap: 7px; }
+.faqc.open .faqc-body { display: flex; }
+
+/* ── buttons ── */
+.btn {
+  display: inline-flex; align-items: center; gap: 5px;
+  padding: 7px 13px; border-radius: 6px;
+  font-family: var(--ui); font-size: .73rem; font-weight: 700; letter-spacing: .03em;
+  cursor: pointer; border: none; transition: all .13s;
+}
+.btn-p { background: var(--ac); color: #0d0d0f; }
+.btn-p:hover { background: #d6f560; transform: translateY(-1px); }
+.btn-g { background: transparent; color: var(--tx2); border: 1px solid var(--bd2); }
+.btn-g:hover { background: var(--sf3); color: var(--tx); }
+.btn-sm { padding: 5px 10px; font-size: .68rem; }
+.btn-full { width: 100%; justify-content: center; }
+
+/* ══ MAIN ══ */
+.main { display: flex; flex-direction: column; min-height: 0; overflow: hidden; }
+.main-tabs {
+  display: flex; flex-shrink: 0;
+  background: var(--sf); border-bottom: 1px solid var(--bd); padding: 0 18px;
+}
+.main-tab {
+  padding: 12px 13px;
+  font-family: var(--ui); font-size: .68rem; font-weight: 700; letter-spacing: .06em; text-transform: uppercase;
+  color: var(--tx3); background: none; border: none;
+  border-bottom: 2px solid transparent; margin-bottom: -1px;
+  cursor: pointer; transition: all .13s;
+}
+.main-tab.on { color: var(--ac); border-bottom-color: var(--ac); }
+.main-tab:hover:not(.on) { color: var(--tx2); }
+
+.main-body {
+  flex: 1; min-height: 0;
+  overflow-y: auto; overflow-x: hidden;
+  scrollbar-width: thin; scrollbar-color: var(--bd2) transparent;
+}
+.main-body::-webkit-scrollbar { width: 4px; }
+.main-body::-webkit-scrollbar-thumb { background: var(--bd2); border-radius: 4px; }
+
+.view { display: none; }
+.view.on { display: block; }
+
+/* preview */
+.prev-wrap {
+  padding: 32px 36px; min-height: 100%;
+  background: repeating-linear-gradient(45deg, transparent, transparent 20px, rgba(255,255,255,.011) 20px, rgba(255,255,255,.012) 21px);
+}
+.prev-lbl {
+  font-size: .58rem; letter-spacing: .12em; text-transform: uppercase; color: var(--tx3);
+  margin-bottom: 16px; display: flex; align-items: center; gap: 8px;
+}
+.prev-lbl::after { content: ''; flex: 1; height: 1px; background: var(--bd); }
+#pvbox { max-width: 700px; margin: 0 auto; }
+
+/* code */
+.code-wrap { padding: 20px; }
+.code-hd { display: flex; align-items: flex-start; justify-content: space-between; margin-bottom: 10px; gap: 12px; }
+.code-ttl { font-size: .63rem; font-weight: 700; letter-spacing: .1em; text-transform: uppercase; color: var(--tx3); }
+.code-sub { font-size: .66rem; color: var(--tx3); margin-top: 3px; line-height: 1.4; }
+pre.codeout {
+  background: var(--sf); border: 1px solid var(--bd); border-radius: 9px;
+  padding: 15px; font-family: var(--mono); font-size: .76rem; line-height: 1.7; color: #c9d1d9;
+  overflow-x: auto; white-space: pre;
+  scrollbar-width: thin; scrollbar-color: var(--bd2) transparent;
+}
+
+/* empty */
+.empty { text-align: center; padding: 48px 16px; color: var(--tx3); }
+.empty-ico { font-size: 1.8rem; margin-bottom: 8px; opacity: .3; }
+.empty-txt { font-size: .79rem; }
+
+/* toast */
+.toast {
+  position: fixed; bottom: 18px; right: 18px;
+  background: var(--sf2); border: 1px solid var(--bd2); border-radius: 8px;
+  padding: 9px 14px; font-size: .78rem; color: var(--tx);
+  display: flex; align-items: center; gap: 6px;
+  transform: translateY(55px); opacity: 0;
+  transition: all .28s cubic-bezier(.34,1.56,.64,1); z-index: 999;
+}
+.toast.show { transform: translateY(0); opacity: 1; }
+</style>
 </head>
 <body>
-    <div class="container">
-        <h1 class="app-title">📝 FAQ Generator with Schema</h1>
-        
-        <div class="app-wrapper">
-            <!-- Input Section -->
-            <div class="input-section">
-                <h2 class="section-title">➕ Add FAQ Items</h2>
-                <div class="faq-form" id="faqForm">
-                    <!-- FAQ items will be dynamically added here -->
-                </div>
-                <button type="button" class="btn btn-add" id="addFaqBtn">
-                    <span>➕ Add Another FAQ Item</span>
-                </button>
-                
-                <div class="form-actions">
-                    <button type="button" class="btn btn-secondary" id="resetBtn">
-                        <span>🔄 Reset All</span>
-                    </button>
-                    <button type="button" class="btn btn-primary" id="generateBtn">
-                        <span>⚡ Generate Code</span>
-                    </button>
-                </div>
+<div class="shell">
+
+  <!-- HEADER -->
+  <header class="hdr">
+    <div class="logo">
+      <div class="logo-dot"></div>
+      FAQ Builder Pro
+      <span class="chip">v2.0</span>
+    </div>
+    <div class="hdr-act">
+      <button class="btn btn-g btn-sm" onclick="doReset()">↺ Reset</button>
+      <button class="btn btn-p btn-sm" onclick="doExport()">⬇ Export Code</button>
+    </div>
+  </header>
+
+  <div class="app">
+
+    <!-- ══════════ SIDEBAR ══════════ -->
+    <aside class="sidebar">
+
+      <div class="sb-tabs">
+        <button class="sb-tab on" onclick="sbTab('faqs',this)">FAQs</button>
+        <button class="sb-tab"    onclick="sbTab('style',this)">Style</button>
+        <button class="sb-tab"    onclick="sbTab('anim',this)">Animation</button>
+      </div>
+
+      <!-- FAQs panel -->
+      <div class="sb-panel on" id="sb-faqs">
+        <div class="faq-list" id="faq-list"></div>
+        <button class="btn btn-p btn-full" onclick="addFAQ()">+ Add FAQ</button>
+      </div>
+
+      <!-- Style panel -->
+      <div class="sb-panel" id="sb-style">
+
+        <div class="sec">
+          <div class="sec-hd" onclick="togSec(this)"><span>Colors</span><span class="sec-arr">▾</span></div>
+          <div class="sec-body">
+            <div class="field"><label>Question Text Color</label>
+              <div class="crow"><input type="color" id="cQT" value="#f0f0f2" oninput="syncC(this,'cQTv');up()"><input class="cval" id="cQTv" value="#f0f0f2" oninput="syncV(this,'cQT');up()"></div>
             </div>
-            
-            <!-- Output Section -->
-            <div class="output-section">
-                <div class="output-controls">
-                    <h2 class="section-title">📋 Generated Code</h2>
-                    <div class="output-badge" id="itemCount">0 FAQ Items</div>
-                </div>
-                
-                <div class="output-area">
-                    <textarea id="generatedCode" placeholder="Generated code will appear here..."></textarea>
-                    <button class="copy-btn" id="copyBtn">📋 Copy Code</button>
-                </div>
-                
-                <div class="preview-section">
-                    <h3 class="preview-title">👁️ Live Preview</h3>
-                    <div class="preview-container" id="previewContainer">
-                        <p>Preview will appear here after generating code...</p>
-                    </div>
-                </div>
+            <div class="field"><label>Answer Text Color</label>
+              <div class="crow"><input type="color" id="cAT" value="#a0a0b0" oninput="syncC(this,'cATv');up()"><input class="cval" id="cATv" value="#a0a0b0" oninput="syncV(this,'cAT');up()"></div>
             </div>
+            <div class="field"><label>Border Color</label>
+              <div class="crow"><input type="color" id="cBd" value="#2e2e34" oninput="syncC(this,'cBdv');up()"><input class="cval" id="cBdv" value="#2e2e34" oninput="syncV(this,'cBd');up()"></div>
+            </div>
+            <div class="field"><label>Inactive Background</label>
+              <div class="crow"><input type="color" id="cBGi" value="#141416" oninput="syncC(this,'cBGiv');up()"><input class="cval" id="cBGiv" value="#141416" oninput="syncV(this,'cBGi');up()"></div>
+            </div>
+            <div class="field"><label>Active Background</label>
+              <div class="crow"><input type="color" id="cBGa" value="#1c1c1f" oninput="syncC(this,'cBGav');up()"><input class="cval" id="cBGav" value="#1c1c1f" oninput="syncV(this,'cBGa');up()"></div>
+            </div>
+            <div class="field"><label>Icon Circle — Inactive</label>
+              <div class="crow"><input type="color" id="cICi" value="#2e2e34" oninput="syncC(this,'cICiv');up()"><input class="cval" id="cICiv" value="#2e2e34" oninput="syncV(this,'cICi');up()"></div>
+            </div>
+            <div class="field"><label>Icon Circle — Active</label>
+              <div class="crow"><input type="color" id="cICa" value="#c8f04a" oninput="syncC(this,'cICav');up()"><input class="cval" id="cICav" value="#c8f04a" oninput="syncV(this,'cICa');up()"></div>
+            </div>
+            <div class="field"><label>Icon Color — Inactive</label>
+              <div class="crow"><input type="color" id="cIi" value="#9090a0" oninput="syncC(this,'cIiv');up()"><input class="cval" id="cIiv" value="#9090a0" oninput="syncV(this,'cIi');up()"></div>
+            </div>
+            <div class="field"><label>Icon Color — Active</label>
+              <div class="crow"><input type="color" id="cIa" value="#0d0d0f" oninput="syncC(this,'cIav');up()"><input class="cval" id="cIav" value="#0d0d0f" oninput="syncV(this,'cIa');up()"></div>
+            </div>
+          </div>
         </div>
-    </div>
 
-    <script>
-        // FAQ data storage
-        let faqItems = [];
-        let faqIdCounter = 1;
-        
-        // Initialize with one empty FAQ item
-        document.addEventListener('DOMContentLoaded', function() {
-            addNewFaqItem();
-            updateItemCount();
-            
-            // Add event listeners
-            document.getElementById('addFaqBtn').addEventListener('click', addNewFaqItem);
-            document.getElementById('generateBtn').addEventListener('click', generateCode);
-            document.getElementById('resetBtn').addEventListener('click', resetAll);
-            document.getElementById('copyBtn').addEventListener('click', copyToClipboard);
-            
-            // Delegate events for dynamic elements
-            document.getElementById('faqForm').addEventListener('input', function(e) {
-                if (e.target.classList.contains('faq-question-input') || e.target.classList.contains('faq-answer-input')) {
-                    updatePreview();
-                }
-            });
-            
-            // Initialize empty preview
-            updatePreview();
-        });
-        
-        // Add a new FAQ item
-        function addNewFaqItem() {
-            const faqForm = document.getElementById('faqForm');
-            const faqId = faqIdCounter++;
-            
-            const faqItemHTML = `
-                <div class="faq-item-input" data-id="${faqId}">
-                    <div class="form-group">
-                        <label for="question-${faqId}">Question</label>
-                        <input type="text" id="question-${faqId}" class="faq-question-input" placeholder="Enter your question here...">
-                    </div>
-                    <div class="form-group">
-                        <label for="answer-${faqId}">Answer</label>
-                        <textarea id="answer-${faqId}" class="faq-answer-input" placeholder="Enter your answer here..."></textarea>
-                    </div>
-                    <div class="form-actions">
-                        <button type="button" class="btn btn-danger remove-faq-btn" data-id="${faqId}">
-                            <span>🗑️ Remove</span>
-                        </button>
-                    </div>
-                </div>
-            `;
-            
-            faqForm.insertAdjacentHTML('beforeend', faqItemHTML);
-            
-            // Add event listener to remove button
-            const removeBtn = faqForm.querySelector(`[data-id="${faqId}"] .remove-faq-btn`);
-            removeBtn.addEventListener('click', function() {
-                if (document.querySelectorAll('.faq-item-input').length > 1) {
-                    this.closest('.faq-item-input').remove();
-                    updateItemCount();
-                    updatePreview();
-                } else {
-                    alert('You need at least one FAQ item. Use the reset button to start over.');
-                }
-            });
-            
-            updateItemCount();
-        }
-        
-        // Reset all FAQ items
-        function resetAll() {
-            if (confirm('Are you sure you want to reset all FAQ items? This cannot be undone.')) {
-                const faqForm = document.getElementById('faqForm');
-                faqForm.innerHTML = '';
-                faqIdCounter = 1;
-                addNewFaqItem();
-                updateItemCount();
-                document.getElementById('generatedCode').value = '';
-                updatePreview();
-            }
-        }
-        
-        // Update the item count badge
-        function updateItemCount() {
-            const count = document.querySelectorAll('.faq-item-input').length;
-            document.getElementById('itemCount').textContent = `${count} FAQ Item${count !== 1 ? 's' : ''}`;
-        }
-        
-        // Generate the complete code
-        function generateCode() {
-            // Get all FAQ items
-            const faqInputs = document.querySelectorAll('.faq-item-input');
-            faqItems = [];
-            
-            faqInputs.forEach(input => {
-                const question = input.querySelector('.faq-question-input').value.trim();
-                const answer = input.querySelector('.faq-answer-input').value.trim();
-                
-                if (question && answer) {
-                    faqItems.push({
-                        question: question,
-                        answer: answer
-                    });
-                }
-            });
-            
-            if (faqItems.length === 0) {
-                alert('Please add at least one FAQ item with both question and answer.');
-                return;
-            }
-            
-            // Generate JSON-LD schema
-            const jsonLDSchema = generateJSONLD(faqItems);
-            
-            // Generate HTML structure
-            const htmlStructure = generateHTML(faqItems);
-            
-            // Complete code with CSS, JS, and schema
-            const completeCode = generateCompleteCode(jsonLDSchema, htmlStructure);
-            
-            // Display in textarea
-            document.getElementById('generatedCode').value = completeCode;
-            
-            // Update preview
-            updatePreview();
-        }
-        
-        // Generate JSON-LD schema
-        function generateJSONLD(items) {
-            const mainEntity = items.map(item => {
-                // Clean answer text for JSON-LD (remove HTML tags for text property)
-                const cleanAnswer = item.answer.replace(/<[^>]*>/g, '');
-                
-                return {
-                    "@type": "Question",
-                    "name": item.question,
-                    "acceptedAnswer": {
-                        "@type": "Answer",
-                        "text": cleanAnswer
-                    }
-                };
-            });
-            
-            const schema = {
-                "@context": "https://schema.org",
-                "@type": "FAQPage",
-                "mainEntity": mainEntity
-            };
-            
-            return JSON.stringify(schema, null, 2);
-        }
-        
-        // Generate HTML structure
-        function generateHTML(items) {
-            let html = '';
-            
-            items.forEach(item => {
-                // Format answer with paragraphs if it contains newlines
-                let formattedAnswer = item.answer;
-                if (formattedAnswer.includes('\n')) {
-                    formattedAnswer = formattedAnswer.split('\n')
-                        .filter(line => line.trim())
-                        .map(line => `<p>${line.trim()}</p>`)
-                        .join('\n');
-                } else {
-                    formattedAnswer = `<p>${formattedAnswer}</p>`;
-                }
-                
-                html += `
-  <div class="faq-item">
-    <div class="faq-question">
-      ${item.question}
-      <div class="faq-icon">
-        <!-- Plus icon -->
-        <svg class="plus" width="20" height="20" viewBox="0 0 20 20" fill="none"
-             xmlns="http://www.w3.org/2000/svg">
-          <path d="M10 4.16663V15.8333" stroke="#1E0A52" stroke-width="1.4"
-                stroke-linecap="round" stroke-linejoin="round"/>
-          <path d="M4.16602 10H15.8327" stroke="#1E0A52" stroke-width="1.4"
-                stroke-linecap="round" stroke-linejoin="round"/>
-        </svg>
-        <!-- Minus icon -->
-        <svg class="minus" width="20" height="20" viewBox="0 0 20 20" fill="none"
-             xmlns="http://www.w3.org/2000/svg">
-          <path d="M4.16602 10H15.8327" stroke="white" stroke-width="1.4"
-                stroke-linecap="round" stroke-linejoin="round"/>
-        </svg>
+        <div class="sec">
+          <div class="sec-hd" onclick="togSec(this)"><span>Typography</span><span class="sec-arr">▾</span></div>
+          <div class="sec-body">
+            <div class="field"><label>Font Family</label>
+              <select id="tFont" onchange="up()">
+                <option value="system-ui,sans-serif">System UI</option>
+                <option value="'Syne',sans-serif" selected>Syne</option>
+                <option value="'DM Mono',monospace">DM Mono</option>
+                <option value="'Fraunces',serif">Fraunces</option>
+                <option value="Georgia,serif">Georgia</option>
+                <option value="'Courier New',monospace">Courier New</option>
+                <option value="Arial,sans-serif">Arial</option>
+                <option value="'Trebuchet MS',sans-serif">Trebuchet MS</option>
+              </select>
+            </div>
+            <div class="f2">
+              <div class="field"><label>Q Font Size (px)</label>
+                <div class="slr"><input type="range" id="tQsz" min="12" max="28" value="16" oninput="slv(this,'tQszV');up()"><span class="slv" id="tQszV">16</span></div>
+              </div>
+              <div class="field"><label>A Font Size (px)</label>
+                <div class="slr"><input type="range" id="tAsz" min="10" max="24" value="14" oninput="slv(this,'tAszV');up()"><span class="slv" id="tAszV">14</span></div>
+              </div>
+            </div>
+            <div class="f2">
+              <div class="field"><label>Q Weight (Active)</label>
+                <select id="tQwa" onchange="up()">
+                  <option value="400">400</option><option value="500">500</option>
+                  <option value="600">600</option><option value="700" selected>700</option><option value="800">800</option>
+                </select>
+              </div>
+              <div class="field"><label>Q Weight (Inactive)</label>
+                <select id="tQwi" onchange="up()">
+                  <option value="400" selected>400</option><option value="500">500</option>
+                  <option value="600">600</option><option value="700">700</option>
+                </select>
+              </div>
+            </div>
+          </div>
+        </div>
+
+        <div class="sec">
+          <div class="sec-hd" onclick="togSec(this)"><span>Spacing &amp; Layout</span><span class="sec-arr">▾</span></div>
+          <div class="sec-body">
+            <div class="field"><label>Question Padding (px)</label>
+              <div class="slr"><input type="range" id="sQp" min="8" max="40" value="18" oninput="slv(this,'sQpV');up()"><span class="slv" id="sQpV">18</span></div>
+            </div>
+            <div class="field"><label>Answer Padding (px)</label>
+              <div class="slr"><input type="range" id="sAp" min="8" max="40" value="18" oninput="slv(this,'sApV');up()"><span class="slv" id="sApV">18</span></div>
+            </div>
+            <div class="field"><label>Gap Between Items (px)</label>
+              <div class="slr"><input type="range" id="sGap" min="0" max="32" value="8" oninput="slv(this,'sGapV');up()"><span class="slv" id="sGapV">8</span></div>
+            </div>
+            <div class="field"><label>Border Radius (px)</label>
+              <div class="slr"><input type="range" id="sRad" min="0" max="32" value="10" oninput="slv(this,'sRadV');up()"><span class="slv" id="sRadV">10</span></div>
+            </div>
+            <div class="field"><label>Border Width (px)</label>
+              <div class="slr"><input type="range" id="sBw" min="0" max="6" value="1" oninput="slv(this,'sBwV');up()"><span class="slv" id="sBwV">1</span></div>
+            </div>
+            <div class="field"><label>Icon Circle Size (px)</label>
+              <div class="slr"><input type="range" id="sIsz" min="20" max="56" value="32" oninput="slv(this,'sIszV');up()"><span class="slv" id="sIszV">32</span></div>
+            </div>
+          </div>
+        </div>
+
+      </div><!-- /sb-style -->
+
+      <!-- Animation panel -->
+      <div class="sb-panel" id="sb-anim">
+
+        <div class="sec">
+          <div class="sec-hd" onclick="togSec(this)"><span>Transition</span><span class="sec-arr">▾</span></div>
+          <div class="sec-body">
+            <div class="field">
+              <div class="togrow">
+                <span class="toglbl">Enable Animation</span>
+                <label class="tog"><input type="checkbox" id="aOn" checked onchange="up()"><span class="togtr"></span></label>
+              </div>
+            </div>
+            <div class="field"><label>Duration (ms)</label>
+              <div class="slr"><input type="range" id="aDur" min="50" max="1200" value="320" step="10" oninput="slv(this,'aDurV');up()"><span class="slv" id="aDurV">320</span></div>
+            </div>
+            <div class="field"><label>Easing</label>
+              <select id="aEase" onchange="up()">
+                <option value="ease">ease</option>
+                <option value="ease-in">ease-in</option>
+                <option value="ease-out" selected>ease-out</option>
+                <option value="ease-in-out">ease-in-out</option>
+                <option value="linear">linear</option>
+                <option value="cubic-bezier(0.34,1.56,0.64,1)">cubic-bezier (spring)</option>
+                <option value="cubic-bezier(0.4,0,0.2,1)">cubic-bezier (material)</option>
+              </select>
+            </div>
+            <div class="field"><label>Animate Properties</label>
+              <div class="chkgrp">
+                <label class="chkitem"><input type="checkbox" id="aH" checked onchange="up()"><span>Height</span></label>
+                <label class="chkitem"><input type="checkbox" id="aO" checked onchange="up()"><span>Opacity</span></label>
+              </div>
+            </div>
+            <div class="field"><label>Max Answer Height (px)</label>
+              <div class="slr"><input type="range" id="aMaxH" min="100" max="2000" value="600" step="50" oninput="slv(this,'aMaxHV');up()"><span class="slv" id="aMaxHV">600</span></div>
+            </div>
+          </div>
+        </div>
+
+        <div class="sec">
+          <div class="sec-hd" onclick="togSec(this)"><span>Icon Style &amp; Position</span><span class="sec-arr">▾</span></div>
+          <div class="sec-body">
+            <div class="field"><label>Icon Type</label>
+              <div class="pillgrp">
+                <label class="pill"><input type="radio" name="iType" value="plusminus" checked onchange="up()"> +/−</label>
+                <label class="pill"><input type="radio" name="iType" value="chevron" onchange="up()"> Chevron</label>
+                <label class="pill"><input type="radio" name="iType" value="arrow" onchange="up()"> Arrow</label>
+              </div>
+            </div>
+            <div class="field"><label>Icon Position</label>
+              <div class="pillgrp">
+                <label class="pill"><input type="radio" name="iPos" value="right" checked onchange="up()"> Right</label>
+                <label class="pill"><input type="radio" name="iPos" value="left" onchange="up()"> Left</label>
+              </div>
+            </div>
+          </div>
+        </div>
+
+      </div><!-- /sb-anim -->
+
+    </aside>
+
+    <!-- ══════════ MAIN ══════════ -->
+    <main class="main">
+      <div class="main-tabs">
+        <button class="main-tab on" onclick="mainTab('preview',this)">Preview</button>
+        <button class="main-tab"   onclick="mainTab('wordpress',this)">WordPress Code</button>
       </div>
-    </div>
-    <div class="faq-answer">
-      <div>
-        ${formattedAnswer}
+      <div class="main-body">
+
+        <div class="view on" id="view-preview">
+          <div class="prev-wrap">
+            <div class="prev-lbl">Live Preview</div>
+            <div id="pvbox"></div>
+          </div>
+        </div>
+
+        <div class="view" id="view-wordpress">
+          <div class="code-wrap">
+            <div class="code-hd">
+              <div>
+                <div class="code-ttl">WordPress Custom HTML Block</div>
+                <div class="code-sub">Paste into Gutenberg → Custom HTML. Contains &lt;style&gt;, HTML markup, &lt;script&gt; and JSON-LD schema — all in one block.</div>
+              </div>
+              <button class="btn btn-p btn-sm" onclick="copyWP()">⎘ Copy All</button>
+            </div>
+            <pre class="codeout" id="wp-out"></pre>
+          </div>
+        </div>
+
       </div>
-    </div>
+    </main>
+
   </div>
-`;
-            });
-            
-            return html;
-        }
-        
-        // Generate complete code
-        function generateCompleteCode(jsonLD, html) {
-            const css = `<style>
-.faq-container {
-  max-width: 800px;
-  margin: 40px auto;
-  font-family: Arial, sans-serif;
-}
-
-.faq-item {
-  border-radius: 8px;
-  margin-bottom: 12px;
-  overflow: hidden;
-  border: 1px solid transparent;
-}
-
-.faq-question {
-  background: #F9F9FB;
-  color: #36364A;
-  cursor: pointer;
-  padding: 15px 20px;
-  font-size: 18px;
-  font-weight: 400;
-  display: flex;
-  justify-content: space-between;
-  align-items: center;
-}
-
-.faq-icon {
-  width: 32px;
-  height: 32px;
-  border-radius: 50%;
-  background: #fff;
-  display: flex;
-  justify-content: center;
-  align-items: center;
-  transition: background 0.3s ease;
-}
-
-.faq-icon svg {
-  transition: opacity 0.3s ease;
-}
-
-.faq-question.active .faq-icon {
-  background: #5F57FF;
-}
-
-.faq-question.active .faq-icon .plus {
-  display: none;
-}
-
-.faq-question.active .faq-icon .minus {
-  display: block;
-}
-
-.faq-icon .minus {
-  display: none;
-}
-
-.faq-answer {
-  max-height: 0;
-  overflow: hidden;
-  background: #f9f9f9;
-  color: #333;
-  line-height: 1.6;
-  transition: max-height 0.4s ease, padding 0.3s ease;
-  padding: 0px 20px;
-}
-
-.faq-answer.show {
-  padding: 0 20px;
-  max-height: 1000px;
-}
-</style>`;
-
-            const js = `<script>
-document.querySelectorAll(".faq-question").forEach((question) => {
-  question.addEventListener("click", () => {
-    // toggle active state
-    question.classList.toggle("active");
-    const answer = question.nextElementSibling;
-    answer.classList.toggle("show");
-
-    // parent element (faq-item)
-    const faqItem = question.parentElement;
-
-    // apply border only if active, otherwise remove
-    if (question.classList.contains("active")) {
-      faqItem.style.border = "1px solid #C2CBFF";
-    } else {
-      faqItem.style.border = "none";
-    }
-  });
-});
-<\/script>`;
-
-            return `<!-- FAQ Section with Schema - Generated by FAQ Generator -->
-${css}
-
-<!-- FAQ Schema (Structured Data) for SEO -->
-<script type="application/ld+json">
-${jsonLD}
-<\/script>
-
-<div class="faq-container">
-${html}
 </div>
 
-${js}`;
-        }
-        
-        // Update live preview
-        function updatePreview() {
-            const previewContainer = document.getElementById('previewContainer');
-            const faqInputs = document.querySelectorAll('.faq-item-input');
-            const items = [];
-            
-            faqInputs.forEach(input => {
-                const question = input.querySelector('.faq-question-input').value.trim();
-                const answer = input.querySelector('.faq-answer-input').value.trim();
-                
-                if (question || answer) {
-                    items.push({
-                        question: question || 'Sample Question',
-                        answer: answer || 'Sample answer will appear here...'
-                    });
-                }
-            });
-            
-            if (items.length === 0) {
-                previewContainer.innerHTML = '<p style="color: #666; text-align: center; padding: 40px;">Enter questions and answers to see preview...</p>';
-                return;
-            }
-            
-            const html = generateHTML(items);
-            previewContainer.innerHTML = `
-                <div class="faq-container">
-                    ${html}
-                </div>
-            `;
-            
-            // Add click functionality to preview
-            previewContainer.querySelectorAll(".faq-question").forEach((question) => {
-                question.addEventListener("click", () => {
-                    question.classList.toggle("active");
-                    const answer = question.nextElementSibling;
-                    answer.classList.toggle("show");
-                    
-                    const faqItem = question.parentElement;
-                    if (question.classList.contains("active")) {
-                        faqItem.style.border = "1px solid #C2CBFF";
-                    } else {
-                        faqItem.style.border = "none";
-                    }
-                });
-            });
-        }
-        
-        // Copy code to clipboard
-        function copyToClipboard() {
-            const codeTextarea = document.getElementById('generatedCode');
-            const copyBtn = document.getElementById('copyBtn');
-            
-            if (!codeTextarea.value.trim()) {
-                alert('Please generate code first!');
-                return;
-            }
-            
-            codeTextarea.select();
-            codeTextarea.setSelectionRange(0, 99999); // For mobile devices
-            
-            try {
-                navigator.clipboard.writeText(codeTextarea.value).then(() => {
-                    // Show success feedback
-                    copyBtn.classList.add('copied');
-                    copyBtn.textContent = '✓ Copied!';
-                    
-                    setTimeout(() => {
-                        copyBtn.classList.remove('copied');
-                        copyBtn.textContent = '📋 Copy Code';
-                    }, 2000);
-                });
-            } catch (err) {
-                // Fallback for older browsers
-                document.execCommand('copy');
-                
-                // Show success feedback
-                copyBtn.classList.add('copied');
-                copyBtn.textContent = '✓ Copied!';
-                
-                setTimeout(() => {
-                    copyBtn.classList.remove('copied');
-                    copyBtn.textContent = '📋 Copy Code';
-                }, 2000);
-            }
-        }
-    </script>
+<div class="toast" id="toast"><span>✓</span><span id="toast-msg">Done</span></div>
+
+<script>
+// ── State ──────────────────────────────────────────────────────
+let faqs = [
+  { id:1, q:'What is FAQ Builder Pro?',        a:'A no-code tool to design, customize and export beautiful FAQ sections with full control over styles, animations and schema markup.' },
+  { id:2, q:'Can I export the generated code?',a:'Yes — hit the WordPress Code tab to get a single ready-to-paste block with CSS, HTML, JS and JSON-LD schema all in one.' },
+  { id:3, q:'Is the animation customizable?',  a:'Absolutely. Control duration, easing, and choose to animate height, opacity, or both independently.' },
+];
+let nid = 4;
+
+// ── Helpers ────────────────────────────────────────────────────
+const g  = id => document.getElementById(id);
+const gv = id => g(id).value;
+const gc = id => g(id).checked;
+const gr = name => { const el = document.querySelector(`input[name="${name}"]:checked`); return el ? el.value : ''; };
+const esc = s => String(s).replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;').replace(/"/g,'&quot;');
+
+function toast(msg) {
+  g('toast-msg').textContent = msg;
+  const t = g('toast');
+  t.classList.add('show');
+  setTimeout(() => t.classList.remove('show'), 2200);
+}
+function syncC(el, vid) { g(vid).value = el.value; }
+function syncV(el, cid) { if (/^#[0-9a-fA-F]{6}$/.test(el.value)) g(cid).value = el.value; }
+function slv(el, vid) { g(vid).textContent = el.value; }
+
+// ── Sidebar tab switching ──────────────────────────────────────
+function sbTab(name, btn) {
+  document.querySelectorAll('.sb-tab').forEach(b => b.classList.remove('on'));
+  document.querySelectorAll('.sb-panel').forEach(p => p.classList.remove('on'));
+  btn.classList.add('on');
+  g('sb-' + name).classList.add('on');
+}
+
+// ── Main tab switching ─────────────────────────────────────────
+function mainTab(name, btn) {
+  document.querySelectorAll('.main-tab').forEach(b => b.classList.remove('on'));
+  document.querySelectorAll('.view').forEach(v => v.classList.remove('on'));
+  btn.classList.add('on');
+  g('view-' + name).classList.add('on');
+  if (name === 'wordpress') buildWP();
+}
+
+// ── Section accordion ─────────────────────────────────────────
+function togSec(hd) { hd.closest('.sec').classList.toggle('closed'); }
+
+// ── Collect all settings ──────────────────────────────────────
+function S() {
+  return {
+    cQT:gv('cQT'), cAT:gv('cAT'), cBd:gv('cBd'),
+    cBGi:gv('cBGi'), cBGa:gv('cBGa'),
+    cICi:gv('cICi'), cICa:gv('cICa'),
+    cIi:gv('cIi'),   cIa:gv('cIa'),
+    font:gv('tFont'),
+    qSz:gv('tQsz'), aSz:gv('tAsz'),
+    qWa:gv('tQwa'), qWi:gv('tQwi'),
+    qPad:gv('sQp'), aPad:gv('sAp'),
+    gap:gv('sGap'), rad:gv('sRad'), bw:gv('sBw'), isz:gv('sIsz'),
+    aOn:gc('aOn'), dur:gv('aDur'), ease:gv('aEase'),
+    aH:gc('aH'), aO:gc('aO'), maxH:gv('aMaxH'),
+    iType:gr('iType'), iPos:gr('iPos'),
+  };
+}
+
+// ── Icon SVG paths ────────────────────────────────────────────
+function svgPaths(type, active) {
+  if (type === 'chevron') return active ? '<polyline points="18 15 12 9 6 15"/>' : '<polyline points="6 9 12 15 18 9"/>';
+  if (type === 'arrow')   return active ? '<line x1="12" y1="19" x2="12" y2="5"/><polyline points="5 12 12 5 19 12"/>' : '<line x1="12" y1="5" x2="12" y2="19"/><polyline points="19 12 12 19 5 12"/>';
+  return active ? '<line x1="5" y1="12" x2="19" y2="12"/>' : '<line x1="12" y1="5" x2="12" y2="19"/><line x1="5" y1="12" x2="19" y2="12"/>';
+}
+function makeSVG(type, active) {
+  return `<svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round">${svgPaths(type, active)}</svg>`;
+}
+
+// ── Build transition CSS value ─────────────────────────────────
+function makeTr(s) {
+  if (!s.aOn) return 'none';
+  const p = [];
+  if (s.aH) p.push(`max-height ${s.dur}ms ${s.ease}`);
+  if (s.aO) p.push(`opacity ${s.dur}ms ${s.ease}`);
+  return p.length ? p.join(', ') : 'none';
+}
+
+// ── LIVE PREVIEW ──────────────────────────────────────────────
+function up() {
+  const s = S();
+  const box = g('pvbox');
+
+  if (!faqs.length) {
+    box.innerHTML = `<div class="empty"><div class="empty-ico">❓</div><div class="empty-txt">Add FAQs to see the preview</div></div>`;
+    return;
+  }
+
+  const iconLeft = s.iPos === 'left';
+  const tr = makeTr(s);
+  const ctr = s.aOn ? `${s.dur}ms ${s.ease}` : '0ms';
+
+  let html = '';
+  faqs.forEach((f, i) => {
+    const iconSpan = `<span class="pv-ic" style="width:${s.isz}px;height:${s.isz}px;min-width:${s.isz}px;border-radius:50%;background:${s.cICi};color:${s.cIi};display:inline-flex;align-items:center;justify-content:center;flex-shrink:0;transition:background ${ctr},color ${ctr};">${makeSVG(s.iType, false)}</span>`;
+    const textSpan = `<span style="flex:1;text-align:left;">${esc(f.q||'Untitled')}</span>`;
+    const qInner = iconLeft ? iconSpan + textSpan : textSpan + iconSpan;
+
+    if (i > 0) html += `<div style="height:${s.gap}px"></div>`;
+    html += `<div class="pv-item" style="background:${s.cBGi};border:${s.bw}px solid ${s.cBd};border-radius:${s.rad}px;overflow:hidden;transition:background ${ctr};">
+      <button class="pv-q" style="display:flex;align-items:center;gap:12px;width:100%;background:none;border:none;cursor:pointer;padding:${s.qPad}px;font-family:${s.font};font-size:${s.qSz}px;font-weight:${s.qWi};color:${s.cQT};line-height:1.4;">${qInner}</button>
+      <div class="pv-ans" style="max-height:0;overflow:hidden;opacity:${s.aO?0:1};transition:${tr};">
+        <div style="padding:${s.aPad}px;font-family:${s.font};font-size:${s.aSz}px;color:${s.cAT};line-height:1.7;border-top:${s.bw}px solid ${s.cBd};">${esc(f.a||'')}</div>
+      </div>
+    </div>`;
+  });
+
+  box.innerHTML = html;
+
+  box.querySelectorAll('.pv-q').forEach((btn, idx) => {
+    btn.addEventListener('click', function() {
+      const item = this.parentElement;
+      const isOpen = item.dataset.open === '1';
+
+      // close all
+      box.querySelectorAll('.pv-item').forEach(el => {
+        el.dataset.open = '';
+        el.style.background = s.cBGi;
+        el.querySelector('.pv-q').style.fontWeight = s.qWi;
+        const ic = el.querySelector('.pv-ic');
+        ic.style.background = s.cICi; ic.style.color = s.cIi;
+        ic.innerHTML = makeSVG(s.iType, false);
+        const an = el.querySelector('.pv-ans');
+        an.style.maxHeight = '0';
+        if (s.aO) an.style.opacity = '0';
+      });
+
+      if (!isOpen) {
+        item.dataset.open = '1';
+        item.style.background = s.cBGa;
+        this.style.fontWeight = s.qWa;
+        const ic = item.querySelector('.pv-ic');
+        ic.style.background = s.cICa; ic.style.color = s.cIa;
+        ic.innerHTML = makeSVG(s.iType, true);
+        const an = item.querySelector('.pv-ans');
+        an.style.maxHeight = s.maxH + 'px';
+        if (s.aO) an.style.opacity = '1';
+      }
+    });
+  });
+}
+
+// ── FAQ admin list ────────────────────────────────────────────
+function renderList() {
+  const list = g('faq-list');
+  if (!faqs.length) {
+    list.innerHTML = `<div class="empty"><div class="empty-ico">❓</div><div class="empty-txt">No FAQs yet.</div></div>`;
+    return;
+  }
+  list.innerHTML = faqs.map((f, i) => `
+    <div class="faqc" data-id="${f.id}">
+      <div class="faqc-hd" onclick="togCard(${f.id})">
+        <span class="faqnum">${i+1}</span>
+        <span class="faqprev">${esc(f.q)||'Untitled'}</span>
+        <button class="faqdel" onclick="event.stopPropagation();delFAQ(${f.id})">✕</button>
+      </div>
+      <div class="faqc-body">
+        <div class="field"><label>Question</label>
+          <input type="text" value="${esc(f.q)}" placeholder="Enter question…" oninput="editFAQ(${f.id},'q',this.value)">
+        </div>
+        <div class="field"><label>Answer</label>
+          <textarea placeholder="Enter answer…" oninput="editFAQ(${f.id},'a',this.value)">${esc(f.a)}</textarea>
+        </div>
+      </div>
+    </div>`).join('');
+}
+
+function togCard(id) { document.querySelector(`.faqc[data-id="${id}"]`).classList.toggle('open'); }
+function addFAQ() {
+  const id = nid++;
+  faqs.push({ id, q:'', a:'' });
+  renderList(); up();
+  setTimeout(() => document.querySelector(`.faqc[data-id="${id}"]`).classList.add('open'), 30);
+}
+function delFAQ(id) { faqs = faqs.filter(f=>f.id!==id); renderList(); up(); }
+function editFAQ(id, key, val) {
+  const f = faqs.find(x=>x.id===id); if(!f) return;
+  f[key] = val;
+  if (key==='q') { const p = document.querySelector(`.faqc[data-id="${id}"] .faqprev`); if(p) p.textContent = val||'Untitled'; }
+  up();
+}
+
+// ── Build WordPress combined output ───────────────────────────
+function buildWP() {
+  const s = S();
+  const iconLeft = s.iPos === 'left';
+  const tr = makeTr(s);
+  const ctr = s.aOn ? `${s.dur}ms ${s.ease}` : '0ms';
+
+  const schema = JSON.stringify({
+    "@context":"https://schema.org","@type":"FAQPage",
+    "mainEntity": faqs.map(f=>({ "@type":"Question","name":f.q,"acceptedAnswer":{"@type":"Answer","text":f.a} }))
+  }, null, 2);
+
+  const css =
+`.faq-section{display:flex;flex-direction:column;gap:${s.gap}px;font-family:${s.font};}
+.faq-item{background:${s.cBGi};border:${s.bw}px solid ${s.cBd};border-radius:${s.rad}px;overflow:hidden;transition:background ${ctr};}
+.faq-item.active{background:${s.cBGa};}
+.faq-question{display:flex;flex-direction:${iconLeft?'row-reverse':'row'};align-items:center;gap:12px;width:100%;text-align:left;background:none;border:none;cursor:pointer;padding:${s.qPad}px;font-family:${s.font};font-size:${s.qSz}px;font-weight:${s.qWi};color:${s.cQT};line-height:1.4;}
+.faq-item.active .faq-question{font-weight:${s.qWa};}
+.faq-q-text{flex:1;}
+.faq-icon-wrap{width:${s.isz}px;height:${s.isz}px;min-width:${s.isz}px;border-radius:50%;background:${s.cICi};color:${s.cIi};display:flex;align-items:center;justify-content:center;transition:background ${ctr},color ${ctr};}
+.faq-item.active .faq-icon-wrap{background:${s.cICa};color:${s.cIa};}
+.faq-icon-inner{display:flex;align-items:center;justify-content:center;}
+.icon-minus{display:none;}
+.faq-item.active .icon-plus{display:none;}
+.faq-item.active .icon-minus{display:flex;}
+.faq-answer{max-height:0;overflow:hidden;${s.aO?'opacity:0;':''}transition:${tr};}
+.faq-item.active .faq-answer{max-height:${s.maxH}px;${s.aO?'opacity:1;':''}}
+.faq-answer-inner{padding:${s.aPad}px;font-size:${s.aSz}px;color:${s.cAT};line-height:1.7;border-top:${s.bw}px solid ${s.cBd};}`;
+
+  const plusSVG  = `<svg class="icon-plus"  width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round">${svgPaths(s.iType,false)}</svg>`;
+  const minusSVG = `<svg class="icon-minus" width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round">${svgPaths(s.iType,true)}</svg>`;
+  const iconHTML = `<span class="faq-icon-wrap"><span class="faq-icon-inner">${plusSVG}${minusSVG}</span></span>`;
+
+  const faqHTML = faqs.map((f,i) => {
+    const qInner = iconLeft
+      ? `${iconHTML}<span class="faq-q-text">${esc(f.q)}</span>`
+      : `<span class="faq-q-text">${esc(f.q)}</span>${iconHTML}`;
+    return `  <div class="faq-item">
+    <button class="faq-question" aria-expanded="false" aria-controls="faq-a-${i+1}">${qInner}</button>
+    <div class="faq-answer" id="faq-a-${i+1}" role="region">
+      <div class="faq-answer-inner">${esc(f.a)}</div>
+    </div>
+  </div>`;
+  }).join('\n');
+
+  const js = `(function(){var ii=document.querySelectorAll('.faq-section .faq-item');ii.forEach(function(item){item.querySelector('.faq-question').addEventListener('click',function(){var open=item.classList.contains('active');ii.forEach(function(el){el.classList.remove('active');el.querySelector('.faq-question').setAttribute('aria-expanded','false');});if(!open){item.classList.add('active');this.setAttribute('aria-expanded','true');}});});})();`;
+
+  g('wp-out').textContent =
+`<!-- ✦ FAQ Section — paste into WordPress › Gutenberg Custom HTML block ✦ -->
+
+<!-- JSON-LD Schema Markup -->
+<script type="application/ld+json">
+${schema}
+<\/script>
+
+<!-- Styles -->
+<style>
+${css}
+</style>
+
+<!-- FAQ HTML -->
+<section class="faq-section">
+${faqHTML}
+</section>
+
+<!-- Accordion JavaScript -->
+<script>
+${js}
+<\/script>`;
+}
+
+function copyWP() {
+  navigator.clipboard.writeText(g('wp-out').textContent).then(() => toast('Copied to clipboard!'));
+}
+
+function doReset() {
+  if (!confirm('Reset all FAQs and settings?')) return;
+  faqs = []; nid = 1; renderList(); up(); toast('Reset complete');
+}
+function doExport() { document.querySelectorAll('.main-tab')[1].click(); }
+
+// ── Init ──────────────────────────────────────────────────────
+renderList();
+up();
+</script>
 </body>
 </html>
