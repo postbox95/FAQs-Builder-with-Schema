@@ -426,7 +426,7 @@ pre.codeout {
     <div class="logo">
       <div class="logo-dot"></div>
       FAQ Builder Pro
-      <span class="chip">v2.2</span>
+      <span class="chip">v2.0</span>
     </div>
     <div class="hdr-act">
       <button class="btn btn-g btn-sm" onclick="doReset()">↺ Reset</button>
@@ -461,31 +461,31 @@ pre.codeout {
           <div class="sec-hd" onclick="togSec(this)"><span>Colors</span><span class="sec-arr">▾</span></div>
           <div class="sec-body">
             <div class="field"><label>Question Text Color</label>
-              <div class="crow"><input type="color" id="cQT" value="#f0f0f2" oninput="syncC(this,'cQTv');up()"><input class="cval" id="cQTv" value="#f0f0f2" oninput="syncV(this,'cQT');up()"></div>
+              <div class="crow"><input type="color" id="cQT" value="#000" oninput="syncC(this,'cQTv');up()"><input class="cval" id="cQTv" value="#000" oninput="syncV(this,'cQT');up()"></div>
             </div>
             <div class="field"><label>Answer Text Color</label>
-              <div class="crow"><input type="color" id="cAT" value="#a0a0b0" oninput="syncC(this,'cATv');up()"><input class="cval" id="cATv" value="#a0a0b0" oninput="syncV(this,'cAT');up()"></div>
+              <div class="crow"><input type="color" id="cAT" value="#333" oninput="syncC(this,'cATv');up()"><input class="cval" id="cATv" value="#333" oninput="syncV(this,'cAT');up()"></div>
             </div>
             <div class="field"><label>Border Color</label>
               <div class="crow"><input type="color" id="cBd" value="#2e2e34" oninput="syncC(this,'cBdv');up()"><input class="cval" id="cBdv" value="#2e2e34" oninput="syncV(this,'cBd');up()"></div>
             </div>
             <div class="field"><label>Inactive Background</label>
-              <div class="crow"><input type="color" id="cBGi" value="#141416" oninput="syncC(this,'cBGiv');up()"><input class="cval" id="cBGiv" value="#141416" oninput="syncV(this,'cBGi');up()"></div>
+              <div class="crow"><input type="color" id="cBGi" value="#f4f4f4" oninput="syncC(this,'cBGiv');up()"><input class="cval" id="cBGiv" value="#f4f4f4" oninput="syncV(this,'cBGi');up()"></div>
             </div>
             <div class="field"><label>Active Background</label>
-              <div class="crow"><input type="color" id="cBGa" value="#1c1c1f" oninput="syncC(this,'cBGav');up()"><input class="cval" id="cBGav" value="#1c1c1f" oninput="syncV(this,'cBGa');up()"></div>
+              <div class="crow"><input type="color" id="cBGa" value="#f0f0f0" oninput="syncC(this,'cBGav');up()"><input class="cval" id="cBGav" value="#f0f0f0" oninput="syncV(this,'cBGa');up()"></div>
             </div>
             <div class="field"><label>Icon Circle — Inactive</label>
-              <div class="crow"><input type="color" id="cICi" value="#2e2e34" oninput="syncC(this,'cICiv');up()"><input class="cval" id="cICiv" value="#2e2e34" oninput="syncV(this,'cICi');up()"></div>
+              <div class="crow"><input type="color" id="cICi" value="#d3d4d3" oninput="syncC(this,'cICiv');up()"><input class="cval" id="cICiv" value="#d3d4d3" oninput="syncV(this,'cICi');up()"></div>
             </div>
             <div class="field"><label>Icon Circle — Active</label>
-              <div class="crow"><input type="color" id="cICa" value="#c8f04a" oninput="syncC(this,'cICav');up()"><input class="cval" id="cICav" value="#c8f04a" oninput="syncV(this,'cICa');up()"></div>
+              <div class="crow"><input type="color" id="cICa" value="#9c3fff" oninput="syncC(this,'cICav');up()"><input class="cval" id="cICav" value="#9c3fff" oninput="syncV(this,'cICa');up()"></div>
             </div>
             <div class="field"><label>Icon Color — Inactive</label>
-              <div class="crow"><input type="color" id="cIi" value="#9090a0" oninput="syncC(this,'cIiv');up()"><input class="cval" id="cIiv" value="#9090a0" oninput="syncV(this,'cIi');up()"></div>
+              <div class="crow"><input type="color" id="cIi" value="#333" oninput="syncC(this,'cIiv');up()"><input class="cval" id="cIiv" value="#333" oninput="syncV(this,'cIi');up()"></div>
             </div>
             <div class="field"><label>Icon Color — Active</label>
-              <div class="crow"><input type="color" id="cIa" value="#0d0d0f" oninput="syncC(this,'cIav');up()"><input class="cval" id="cIav" value="#0d0d0f" oninput="syncV(this,'cIa');up()"></div>
+              <div class="crow"><input type="color" id="cIa" value="#fff" oninput="syncC(this,'cIav');up()"><input class="cval" id="cIav" value="#fff" oninput="syncV(this,'cIa');up()"></div>
             </div>
           </div>
         </div>
@@ -495,8 +495,8 @@ pre.codeout {
           <div class="sec-body">
             <div class="field"><label>Font Family</label>
               <select id="tFont" onchange="up()">
-                <option value="system-ui,sans-serif">System UI</option>
-                <option value="'Syne',sans-serif" selected>Syne</option>
+                <option value="system-ui,sans-serif"selected>System UI</option>
+                <option value="'Syne',sans-serif">Syne</option>
                 <option value="'DM Mono',monospace">DM Mono</option>
                 <option value="'Fraunces',serif">Fraunces</option>
                 <option value="Georgia,serif">Georgia</option>
@@ -516,8 +516,8 @@ pre.codeout {
             <div class="f2">
               <div class="field"><label>Q Weight (Active)</label>
                 <select id="tQwa" onchange="up()">
-                  <option value="400">400</option><option value="500">500</option>
-                  <option value="600">600</option><option value="700" selected>700</option><option value="800">800</option>
+                  <option value="400"selected>400</option><option value="500">500</option>
+                  <option value="600">600</option><option value="700">700</option><option value="800">800</option>
                 </select>
               </div>
               <div class="field"><label>Q Weight (Inactive)</label>
